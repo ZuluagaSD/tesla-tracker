@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './auth/auth-context'
 import { LoginPage } from './components/LoginPage'
 import { Layout } from './components/Layout'
@@ -21,20 +22,23 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage />
+    return <><LoginPage /><Analytics /></>
   }
 
   return (
-    <Layout>
-      {selectedOrder ? (
-        <OrderDetails
-          order={selectedOrder}
-          onBack={() => setSelectedOrder(null)}
-        />
-      ) : (
-        <OrderList onSelectOrder={setSelectedOrder} />
-      )}
-    </Layout>
+    <>
+      <Layout>
+        {selectedOrder ? (
+          <OrderDetails
+            order={selectedOrder}
+            onBack={() => setSelectedOrder(null)}
+          />
+        ) : (
+          <OrderList onSelectOrder={setSelectedOrder} />
+        )}
+      </Layout>
+      <Analytics />
+    </>
   )
 }
 
