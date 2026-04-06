@@ -22,9 +22,9 @@ export function buildEmailHtml(
 <body style="margin:0;padding:0;background:#111;font-family:system-ui,-apple-system,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <div style="display:inline-block;background:#dc2626;border-radius:12px;padding:8px 12px;">
+      <a href="https://tesla-tracker-blond.vercel.app" style="display:inline-block;background:#dc2626;border-radius:12px;padding:8px 12px;text-decoration:none;">
         <span style="color:white;font-weight:700;font-size:14px;">Tesla Delivery Tracker</span>
-      </div>
+      </a>
     </div>
 
     <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:16px;overflow:hidden;">
