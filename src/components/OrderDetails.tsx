@@ -463,5 +463,9 @@ function formatAddress(addr: AnyJson): string {
 }
 
 function humanize(key: string): string {
-  return key.replace(/([A-Z])/g, ' $1').replace(/[_-]/g, ' ').replace(/^\w/, (c) => c.toUpperCase()).trim()
+  return key
+    .replace(/[_-]/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/^\w/, (c) => c.toUpperCase())
+    .trim()
 }
