@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 import { useAuth } from '../auth/auth-context'
+import { useI18n } from '../lib/i18n'
 
 export function Layout({ children }: { children: ReactNode }) {
   const { logout } = useAuth()
+  const { lang, setLang, t } = useI18n()
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -14,14 +16,22 @@ export function Layout({ children }: { children: ReactNode }) {
                 <path d="M139 0C96.3 0 78.7 28.6 78.7 28.6h120.6S181.7 0 139 0zm0 33.3c-18.8 0-34.1 2.8-46.9 7.1L139 100l46.9-59.6c-12.8-4.3-28.1-7.1-46.9-7.1z" />
               </svg>
             </div>
-            <h1 className="text-lg font-semibold text-white">Tesla Delivery Tracker</h1>
+            <h1 className="text-lg font-semibold text-white">{t('app.title')}</h1>
           </div>
-          <button
-            onClick={logout}
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+              className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              {lang === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}
+            </button>
+            <button
+              onClick={logout}
+              className="text-sm text-gray-400 hover:text-white transition-colors"
+            >
+              {t('layout.signOut')}
+            </button>
+          </div>
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-4 py-8">

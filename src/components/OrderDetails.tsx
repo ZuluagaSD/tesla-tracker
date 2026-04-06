@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchOrderDetails } from '../api/tesla-api'
 import { useAuth } from '../auth/auth-context'
+import { useI18n } from '../lib/i18n'
 import { StatusBadge } from './StatusBadge'
 import { VehicleImage } from './VehicleImage'
 import { SubscribeForm } from './SubscribeForm'
@@ -17,6 +18,7 @@ type Tab = 'overview' | 'tasks' | 'json'
 
 export function OrderDetails({ order, onBack }: OrderDetailsProps) {
   const { getAccessToken } = useAuth()
+  const { t } = useI18n()
   const [details, setDetails] = useState<AnyJson>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +75,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
-        Back to Orders
+        {t('details.back')}
       </button>
 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
@@ -90,21 +92,24 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
 
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Order {orderId}</h2>
+            <h2 className="text-xl font-semibold text-white">{t('details.order')} {orderId}</h2>
             {status && <StatusBadge status={status} />}
           </div>
 
+          {/* Email Notifications */}
+          <SubscribeForm />
+
           {/* Tabs */}
           <div className="flex gap-1 bg-gray-800 rounded-xl p-1">
-            {(['overview', 'tasks', 'json'] as Tab[]).map((t) => (
+            {(['overview', 'tasks', 'json'] as Tab[]).map((tb) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={tb}
+                onClick={() => setTab(tb)}
                 className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                  tab === t ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
+                  tab === tb ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
-                {t === 'overview' ? 'Overview' : t === 'tasks' ? 'Tasks' : 'Raw JSON'}
+                {tb === 'overview' ? t('details.tab.overview') : tb === 'tasks' ? t('details.tab.tasks') : t('details.tab.json')}
               </button>
             ))}
           </div>
@@ -126,7 +131,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
           {!loading && !error && tab === 'overview' && (
             <div className="space-y-6">
               {/* Vehicle */}
-              <Section title="Vehicle">
+              <Section title={t('section.vehicle')}>
                 <Row label="Model" value={delivery.model ?? modelCode} />
                 <Row label="VIN" value={vin ?? 'Pending'} muted={!vin} />
                 {order.mktOptions && <Row label="Options" value={order.mktOptions} />}
@@ -135,7 +140,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
 
               {/* Order Contact */}
               {orderUser.firstName && (
-                <Section title="Order Contact">
+                <Section title={t('section.orderContact')}>
                   <Row label="Name" value={`${orderUser.firstName} ${orderUser.lastName}`} />
                   <Row label="Email" value={orderUser.emailAddress ?? ''} />
                   <Row label="Phone" value={orderUser.phoneNumber ? `+${orderUser.phoneDialingPrefix ?? ''} ${orderUser.phoneNumber}` : ''} />
@@ -147,7 +152,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
 
               {/* Registrant */}
               {owner.firstName && (
-                <Section title="Registrant">
+                <Section title={t('section.registrant')}>
                   <Row label="Name" value={`${owner.firstName} ${owner.lastName}`} />
                   <Row label="Email" value={owner.emailAddress ?? ''} />
                   <Row label="Phone" value={owner.phoneNumber ?? ''} />
@@ -159,13 +164,13 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
 
               {/* Registration Address */}
               {regAddress.address1 && (
-                <Section title="Registration Address">
+                <Section title={t('section.regAddress')}>
                   <Row label="Address" value={formatAddress(regAddress)} />
                 </Section>
               )}
 
               {/* Delivery */}
-              <Section title="Delivery">
+              <Section title={t('section.delivery')}>
                 <Row label="Type" value={humanize(scheduling.deliveryType ?? deliveryDetails.deliveryType ?? '')} />
                 {scheduling.deliveryAddressTitle && (
                   <Row label="Location" value={scheduling.deliveryAddressTitle} />
@@ -192,7 +197,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
               </Section>
 
               {/* Financing */}
-              <Section title="Financing">
+              <Section title={t('section.financing')}>
                 <Row label="Payment Method" value={financing.card?.messageBody ?? reg.orderType ?? ''} />
                 <Row label="Status" value={financing.card?.title ?? ''} />
                 {finalPayment.currencyFormat?.currencyCode && (
@@ -201,7 +206,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
               </Section>
 
               {/* Final Payment */}
-              <Section title="Final Payment">
+              <Section title={t('section.finalPayment')}>
                 <Row label="Amount Due" value={String(finalPayment.amountDue ?? 'N/A')} />
                 <Row label="Amount Sent" value={String(finalPayment.amountSent ?? 'N/A')} />
                 <Row label="Status" value={finalPayment.card?.title ?? ''} />
@@ -209,7 +214,7 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
 
               {/* Agreements */}
               {agreements.id && (
-                <Section title="Agreements">
+                <Section title={t('section.agreements')}>
                   <Row label="Status" value={agreements.card?.title ?? agreements.status ?? ''} />
                   {agreements.completedPackets?.length > 0 && (
                     <Row label="Completed" value={agreements.completedPackets.join(', ')} />
@@ -221,14 +226,12 @@ export function OrderDetails({ order, onBack }: OrderDetailsProps) {
               )}
 
               {/* Timeline */}
-              <Section title="Timeline">
+              <Section title={t('section.timeline')}>
                 {regData.startedOn && <Row label="Registration Started" value={formatDate(regData.startedOn)} />}
                 {regData.startedBy && <Row label="Started By" value={regData.startedBy} />}
                 {regDetails.lastUpdateDatetime && <Row label="Last Updated" value={formatDate(regDetails.lastUpdateDatetime)} />}
               </Section>
 
-              {/* Email Notifications */}
-              <SubscribeForm />
             </div>
           )}
 

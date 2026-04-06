@@ -1,5 +1,6 @@
 import { StatusBadge } from './StatusBadge'
 import { VehicleImage } from './VehicleImage'
+import { useI18n } from '../lib/i18n'
 
 const MODEL_NAMES: Record<string, string> = {
   ms: 'Model S',
@@ -11,6 +12,7 @@ const MODEL_NAMES: Record<string, string> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function OrderCard({ order, onClick }: { order: any; onClick: () => void }) {
+  const { t } = useI18n()
   const modelCode = order.modelCode ?? ''
   const modelName = MODEL_NAMES[modelCode.toLowerCase()] ?? (modelCode || 'Tesla')
   const status = order.orderStatus ?? order.status ?? ''
@@ -37,13 +39,13 @@ export function OrderCard({ order, onClick }: { order: any; onClick: () => void 
         </div>
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Order</span>
+            <span className="text-gray-500">{t('card.order')}</span>
             <span className="text-gray-300">{refNum}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">VIN</span>
+            <span className="text-gray-500">{t('card.vin')}</span>
             <span className={vin ? 'text-gray-300' : 'text-gray-600'}>
-              {vin ?? 'Pending'}
+              {vin ?? t('card.pending')}
             </span>
           </div>
         </div>

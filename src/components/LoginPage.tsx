@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/auth-context'
+import { useI18n } from '../lib/i18n'
 
 export function LoginPage() {
   const { login, handleCallback, awaitingCallback, authUrl } = useAuth()
+  const { lang, setLang, t } = useI18n()
   const [callbackUrl, setCallbackUrl] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -12,7 +14,7 @@ export function LoginPage() {
     try {
       await login()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to start sign-in')
+      setError(e instanceof Error ? e.message : t('login.error.start'))
     }
   }
 
@@ -25,7 +27,7 @@ export function LoginPage() {
     try {
       await handleCallback(callbackUrl.trim())
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to complete sign-in')
+      setError(err instanceof Error ? err.message : t('login.error.complete'))
     } finally {
       setSubmitting(false)
     }
@@ -46,22 +48,25 @@ export function LoginPage() {
               <path d="M139 0C96.3 0 78.7 28.6 78.7 28.6h120.6S181.7 0 139 0zm0 33.3c-18.8 0-34.1 2.8-46.9 7.1L139 100l46.9-59.6c-12.8-4.3-28.1-7.1-46.9-7.1z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Tesla Delivery Tracker</h1>
-          <p className="text-gray-400 mt-2">Track your Tesla order status in real time</p>
+          <h1 className="text-2xl font-bold text-white">{t('app.title')}</h1>
+          <p className="text-gray-400 mt-2">{t('app.subtitle')}</p>
+          <button
+            onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+            className="mt-3 text-sm text-gray-500 hover:text-white transition-colors"
+          >
+            {lang === 'en' ? '🇪🇸 Español' : '🇺🇸 English'}
+          </button>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
           {!awaitingCallback ? (
             <div className="space-y-4">
-              <p className="text-gray-300 text-sm">
-                Sign in with your Tesla account to view your order status, delivery window,
-                and vehicle details.
-              </p>
+              <p className="text-gray-300 text-sm">{t('login.description')}</p>
               <button
                 onClick={onLogin}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-xl transition-colors"
               >
-                Sign in with Tesla
+                {t('login.signIn')}
               </button>
             </div>
           ) : (
@@ -69,15 +74,15 @@ export function LoginPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <span className="flex items-center justify-center w-6 h-6 bg-gray-800 rounded-full text-xs font-medium">1</span>
-                  Complete sign-in in the new tab
+                  {t('login.step1')}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <span className="flex items-center justify-center w-6 h-6 bg-gray-800 rounded-full text-xs font-medium">2</span>
-                  Copy the URL from the blank page you land on
+                  {t('login.step2')}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-300">
                   <span className="flex items-center justify-center w-6 h-6 bg-gray-800 rounded-full text-xs font-medium">3</span>
-                  Paste it below
+                  {t('login.step3')}
                 </div>
               </div>
 
@@ -85,7 +90,7 @@ export function LoginPage() {
                 type="text"
                 value={callbackUrl}
                 onChange={(e) => setCallbackUrl(e.target.value)}
-                placeholder="Paste callback URL here..."
+                placeholder={t('login.placeholder')}
                 className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
                 autoFocus
               />
@@ -96,22 +101,22 @@ export function LoginPage() {
                   onClick={onCancel}
                   className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-3 px-4 rounded-xl transition-colors"
                 >
-                  Cancel
+                  {t('login.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !callbackUrl.trim()}
                   className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl transition-colors"
                 >
-                  {submitting ? 'Signing in...' : 'Complete Sign In'}
+                  {submitting ? t('login.submitting') : t('login.submit')}
                 </button>
               </div>
 
               {authUrl && (
                 <p className="text-xs text-gray-500 text-center">
-                  Popup blocked?{' '}
+                  {t('login.popupBlocked')}{' '}
                   <a href={authUrl} target="_blank" rel="noopener noreferrer" className="text-red-400 hover:text-red-300 underline">
-                    Open sign-in manually
+                    {t('login.openManually')}
                   </a>
                 </p>
               )}

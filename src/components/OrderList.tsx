@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchOrders } from '../api/tesla-api'
 import { useAuth } from '../auth/auth-context'
+import { useI18n } from '../lib/i18n'
 import { OrderCard } from './OrderCard'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,6 +13,7 @@ interface OrderListProps {
 
 export function OrderList({ onSelectOrder }: OrderListProps) {
   const { getAccessToken } = useAuth()
+  const { t } = useI18n()
   const [orders, setOrders] = useState<AnyOrder[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +25,7 @@ export function OrderList({ onSelectOrder }: OrderListProps) {
       const { parsed } = await fetchOrders(getAccessToken)
       setOrders(parsed)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load orders')
+      setError(e instanceof Error ? e.message : t('orders.error'))
     } finally {
       setLoading(false)
     }
@@ -58,7 +60,7 @@ export function OrderList({ onSelectOrder }: OrderListProps) {
           onClick={loadOrders}
           className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-xl transition-colors"
         >
-          Try Again
+          {t('orders.tryAgain')}
         </button>
       </div>
     )
@@ -67,7 +69,7 @@ export function OrderList({ onSelectOrder }: OrderListProps) {
   if (orders.length === 0) {
     return (
       <div className="text-center py-16">
-        <p className="text-gray-400">No orders found.</p>
+        <p className="text-gray-400">{t('orders.empty')}</p>
       </div>
     )
   }
@@ -75,12 +77,12 @@ export function OrderList({ onSelectOrder }: OrderListProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Your Orders</h2>
+        <h2 className="text-xl font-semibold text-white">{t('orders.title')}</h2>
         <button
           onClick={loadOrders}
           className="text-sm text-gray-400 hover:text-white transition-colors"
         >
-          Refresh
+          {t('orders.refresh')}
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

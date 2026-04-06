@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/auth-context'
+import { useI18n } from '../lib/i18n'
 
 const STORAGE_KEY = 'tesla-tracker-subscription'
 
 export function SubscribeForm() {
   const { tokens } = useAuth()
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -37,7 +39,7 @@ export function SubscribeForm() {
       const data = await res.json()
 
       if (!res.ok) {
-        setMessage({ type: 'error', text: data.error ?? 'Subscription failed' })
+        setMessage({ type: 'error', text: data.error ?? t('subscribe.error') })
         return
       }
 
@@ -45,7 +47,7 @@ export function SubscribeForm() {
       setSubscribed(email.trim())
       setMessage({ type: 'success', text: data.message ?? 'Subscribed!' })
     } catch {
-      setMessage({ type: 'error', text: 'Failed to subscribe. Please try again.' })
+      setMessage({ type: 'error', text: t('subscribe.error.generic') })
     } finally {
       setLoading(false)
     }
@@ -65,16 +67,16 @@ export function SubscribeForm() {
       })
 
       if (!res.ok) {
-        setMessage({ type: 'error', text: 'Failed to unsubscribe' })
+        setMessage({ type: 'error', text: t('subscribe.error.unsub') })
         return
       }
 
       localStorage.removeItem(STORAGE_KEY)
       setSubscribed(null)
       setEmail('')
-      setMessage({ type: 'success', text: 'Unsubscribed successfully' })
+      setMessage({ type: 'success', text: t('subscribe.success.unsub') })
     } catch {
-      setMessage({ type: 'error', text: 'Failed to unsubscribe' })
+      setMessage({ type: 'error', text: t('subscribe.error.unsub') })
     } finally {
       setLoading(false)
     }
@@ -89,8 +91,8 @@ export function SubscribeForm() {
           </svg>
         </div>
         <div>
-          <h3 className="text-white font-medium text-sm">Email Notifications</h3>
-          <p className="text-gray-500 text-xs">Get notified when your order status changes</p>
+          <h3 className="text-white font-medium text-sm">{t('subscribe.title')}</h3>
+          <p className="text-gray-500 text-xs">{t('subscribe.description')}</p>
         </div>
       </div>
 
@@ -98,14 +100,14 @@ export function SubscribeForm() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 bg-green-900/20 border border-green-800/30 rounded-xl px-4 py-2.5">
             <div className="w-2 h-2 bg-green-500 rounded-full" />
-            <span className="text-green-300 text-sm">Subscribed: {subscribed}</span>
+            <span className="text-green-300 text-sm">{t('subscribe.subscribed')} {subscribed}</span>
           </div>
           <button
             onClick={handleUnsubscribe}
             disabled={loading}
             className="text-sm text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50"
           >
-            {loading ? 'Unsubscribing...' : 'Unsubscribe'}
+            {loading ? t('subscribe.unsubscribing') : t('subscribe.unsubscribe')}
           </button>
         </div>
       ) : (
@@ -114,7 +116,7 @@ export function SubscribeForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
+            placeholder={t('subscribe.placeholder')}
             required
             className="flex-1 bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
           />
@@ -123,7 +125,7 @@ export function SubscribeForm() {
             disabled={loading || !email.trim()}
             className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap"
           >
-            {loading ? 'Subscribing...' : 'Notify Me'}
+            {loading ? t('subscribe.subscribing') : t('subscribe.button')}
           </button>
         </form>
       )}
