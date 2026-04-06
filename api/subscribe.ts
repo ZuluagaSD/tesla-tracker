@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { encrypt } from './_crypto'
 
 const TESLA_TOKEN_URL = 'https://auth.tesla.com/oauth2/v3/token'
 
@@ -62,8 +63,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .upsert(
       {
         email,
-        refresh_token,
-        access_token: currentAccessToken,
+        refresh_token: encrypt(refresh_token),
+        access_token: encrypt(currentAccessToken),
         token_expires_at: currentExpiresAt,
         is_active: true,
         updated_at: new Date().toISOString(),

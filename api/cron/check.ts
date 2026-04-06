@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { decrypt, encrypt } from '../_crypto'
 
 const TESLA_TOKEN_URL = 'https://auth.tesla.com/oauth2/v3/token'
 const TESLA_ORDERS_URL = 'https://owner-api.teslamotors.com/api/1/users/orders'
@@ -32,9 +33,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   for (const sub of subscribers) {
     try {
-      // Refresh token if needed
-      let accessToken = sub.access_token
+      // Decrypt stored tokens
+      let accessToken: string | null = null
+      let refreshToken: string
       let expiresAt = sub.token_expires_at
+
+      try {
+        refreshToken = decrypt(sub.refresh_token)
+        if (sub.access_token) accessToken = decrypt(sub.access_token)
+      } catch {
+        // Legacy unencrypted tokens - read as-is
+        refreshToken = sub.refresh_token
+        accessToken = sub.access_token
+      }
 
       if (!accessToken || (expiresAt && expiresAt < Date.now())) {
         const refreshRes = await fetch(TESLA_TOKEN_URL, {
@@ -43,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           body: JSON.stringify({
             grant_type: 'refresh_token',
             client_id: 'ownerapi',
-            refresh_token: sub.refresh_token,
+            refresh_token: refreshToken,
           }),
         })
 
@@ -61,13 +72,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         accessToken = tokenData.access_token
         expiresAt = Date.now() + tokenData.expires_in * 1000
 
-        // Save new tokens
+        // Save new tokens (encrypted)
         await supabase
           .from('subscribers')
           .update({
-            access_token: accessToken,
+            access_token: encrypt(accessToken!),
             token_expires_at: expiresAt,
-            refresh_token: tokenData.refresh_token ?? sub.refresh_token,
+            refresh_token: encrypt(tokenData.refresh_token ?? refreshToken),
             updated_at: new Date().toISOString(),
           })
           .eq('id', sub.id)
