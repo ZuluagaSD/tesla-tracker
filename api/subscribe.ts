@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
-import { encrypt } from './_crypto'
+import { encrypt } from './_crypto.js'
 
 const TESLA_TOKEN_URL = 'https://auth.tesla.com/oauth2/v3/token'
 

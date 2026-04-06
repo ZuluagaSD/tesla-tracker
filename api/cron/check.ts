@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
-import { decrypt, encrypt } from '../_crypto'
+import { decrypt, encrypt } from '../_crypto.js'
 
 const TESLA_TOKEN_URL = 'https://auth.tesla.com/oauth2/v3/token'
 const TESLA_ORDERS_URL = 'https://owner-api.teslamotors.com/api/1/users/orders'
